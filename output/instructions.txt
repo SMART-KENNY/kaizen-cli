@@ -1,0 +1,26 @@
+
+1) Navigate to output folder look for the onboarding_ddl.sql
+2) copy it you'll need it later
+3) Next open databricks https://dbc-e845b040-69ce.cloud.databricks.com/?autoLogin=true&account_id=e485f01f-f109-4f6f-8545-9b1f54ebde17&o=1016529238683690
+4) Navigate to Side navigation bar and click SQL Editor
+5) Then paste the copied create table from the onboarding_ddl.sql file and execute it
+
+6) Navigate again to output folder look for the alter_tags-cox_nrt_acounthistory.sql
+7) copy the dev portion... Ignore the PET and Production
+8) go back to the databricks
+9) then paste the copied alter tags statement then execute it
+
+10) Now open your GDM workspace in vscode using ubuntu
+11) You'll now have two seperate vscode opened
+12) Navigate back again to output folder and copy the file cox_nrt_acounthistory_config.json paste it to the GDM workspace
+13) Next Navigate back again to output folder and copy the file cox_nrt_acounthistory_job.yml paste it to the GDM workspace
+14) Next Navigate back again to output folder and copy the file cox_nrt_acounthistory.sql paste it to the GDM workspace
+
+15) Note: If your source file is s3 to s3 then you don't have to put the json file dev_gdm_config-cox_nrt_acounthistory.json to datasync
+16) on the other hand if youre source is coming from the talend server then you'll have to put the json file dev_gdm_config-cox_nrt_acounthistory.json to datasync 
+    -IP ADDRESS: 10.126.9.241
+    -USERNAME: apps_user
+
+17) If to zscaler and open remote - desktop and then connect to datasync dev
+18) once connected..... transfer the file dev_gdm_config-cox_nrt_acounthistory.json to gdm_assets/non_prod/config/
+19) Then you can run the script ./execute_alapaap_data_movement_ops_nonprod.sh -s dev_gdm_config-cox_nrt_acounthistory.json -x "txn_date" -y "20250721" -p B

@@ -1,0 +1,274 @@
+{
+    "application_name": "GENZ - Bronze ingest  acounthistory",
+    "logger_configuration": {
+      "log_level": "DEBUG"
+    },
+    "task_configuration": {
+        "datasource_configuration": {
+            "s3_data_bucket_key": "landing_bucket_name",
+            "s3_in_process_data_prefix": "cox_nrt_acounthistory/in_process/",
+            "s3_reprocessing_data_prefix": "cox_nrt_acounthistory/reprocessing/",
+            "s3_manifest_bucket_key": "monitoring_bucket_name",
+            "s3_in_process_manifest_prefix": "manifests/source_manifest/cox_nrt_acounthistory/in_process/", 
+            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/cox_nrt_acounthistory/reprocessing/",
+            "sql_file_path": "./cu/sql/cox_nrt_acounthistory.sql",
+            "file_format": "parquet",
+            "delimiter": "",
+            "header_flag": true,
+            "read_mode": "FAILFAST",
+            "file_timestamp_partition_flag": true,
+            "source_partition_list": [
+
+            ]
+        },
+        "endpoint_configuration": {
+            "table_name": "wde.cu_b.cox_nrt_acounthistory",
+            "target_partition_list": [],
+            "data_refresh_column_list": ["txn_date", "file_date"],
+            "save_mode": "append",
+            "partition_overwrite_flag": false
+        },
+        "data_standardization_configuration": 
+           [
+               {
+                   "standardize_function": "standardize_msisdn",
+                   "source_column_name": "msisdn",
+                   "additional_parameters": {
+                       "target_column_name": "msisdn"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_timestamp",
+                   "source_column_name": "tstamp",
+                   "additional_parameters": {
+                       "timestamp_format": "yyyy-MM-dd HH:mm:ss",
+                       "target_column_name": "tstamp"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "imei",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "imei"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "asd",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "asd"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_timestamp",
+                   "source_column_name": "asd",
+                   "additional_parameters": {
+                       "timestamp_format": "yyyy-MM-dd HH:mm:ss",
+                       "target_column_name": "asd"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_msisdn",
+                   "source_column_name": "owning_subscriber_id",
+                   "additional_parameters": {
+                       "target_column_name": "owning_subscriber_id"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "txn_dt",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "txn_dt"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "asd",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "asd"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_timestamp",
+                   "source_column_name": "enodebd",
+                   "additional_parameters": {
+                       "timestamp_format": "yyyy-MM-dd HH:mm:ss",
+                       "target_column_name": "enodebd"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "txn_dt",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "txn_dt"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "file_date"
+                   }
+               }
+           ],
+        "data_quality_configuration": [
+            {
+                "rule_name": "compare_file_size_in_bytes",
+                "parameters": {
+                    "actual_size": null,
+                    "expected_size": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "reconcile_file_set",
+                "parameters": {
+                    "file_name_column": "file_name",
+                    "manifest_file_set": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "check_schema_consistency",
+                "parameters": {
+                    "expected_schema": 
+                [
+                    {
+                        "column_name": "msisdn",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "historytypekeya",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "reasonfordeletion",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "tstamp",
+                        "data_type": "timestamp"
+                    },
+                    {
+                        "column_name": "username",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "accountnum",
+                        "data_type": "longinteger"
+                    },
+                    {
+                        "column_name": "additionalinfo",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "propertytypename",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "source",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "externaltransactionreference",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "subscriptionproperty",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "imei",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "asd",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "asd",
+                        "data_type": "timestamp"
+                    },
+                    {
+                        "column_name": "owning_subscriber_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "imsi",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "txn_dt",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "asd",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "enodebd",
+                        "data_type": "timestamp"
+                    },
+                    {
+                        "column_name": "asd",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "asd",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "txn_dt",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "file_date",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "dbx_process_dttm",
+                        "data_type": "timestamp"
+                    },
+                    {
+                        "column_name": "file_name",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "file_id",
+                        "data_type": "string"
+                    }
+                ]
+                },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_column_count", 
+                "parameters": { "expected_count": 26 },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            }
+        ]
+    },
+    "utility_configuration": {
+    }
+  }

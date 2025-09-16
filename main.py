@@ -13,7 +13,7 @@ load_dotenv()
 BASE_PATH = os.getenv('BASE_PATH')
 
 if user_choice == "Run databricks generator!":
-    dbx_main()
+    runner = dbx_main()
     open_file_maximized(rf"{BASE_PATH}output\instructions.txt")
 elif user_choice == "Ask / prompt AI":
     print("Running prompt AI")

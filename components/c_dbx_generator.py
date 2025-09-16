@@ -380,7 +380,8 @@ def generate_json_standardization(
     pipe_line: str = "",
     template_path: str = "",
     output_path: str = "",
-    p_header: str = ''
+    p_header: str = '',
+    p_partition_column: str = ''
 ) -> None:
 
     if not template_path:
@@ -393,13 +394,47 @@ def generate_json_standardization(
 
 
     columns = []
+    target_partition_list = []
+    partitions = p_partition_column.split(", ")    
 
+    # FOR TARGET PARTITION LIST
+    for p in partitions:
+        if p == "txn_date" or p == "txn_dt":
+            target_partition_list.append({
+                    "partition_name": "txn_date",
+                    "data_type": "date",
+                    "format": "%Y-%m-%d",
+                    "metadata_table_column_ref": "transaction_timestamp",
+                    "order": 1
+                })
+        elif p == "file_date" or p == "file_dt":
+            target_partition_list.append({
+                    "partition_name": "file_date",
+                    "data_type": "date",
+                    "format": "%Y-%m-%d",
+                    "metadata_table_column_ref": "file_date",
+                    "order": 2
+                })
+        elif p == "file_timestamp_bucket":
+            target_partition_list.append({
+                    "partition_name": "file_timestamp_bucket",
+                    "data_type": "date",
+                    "format": "%Y-%m-%d%H",
+                    "metadata_table_column_ref": "file_timestamp",
+                    "order": 1
+                })
+        else:
+            continue
+
+
+
+    # FOR STANDARDIZATION
     if p_header == "true":
         for _, row in df.iterrows():
             iterator = str(row.iloc[0]).strip()
             field_name = str(row.iloc[1]).strip()
             data_type = str(row.iloc[2]).strip()
-
+            field_name = field_name.lower()
             if not field_name or not data_type:
                 continue
 
@@ -410,6 +445,23 @@ def generate_json_standardization(
                     "additional_parameters": {
                         "timestamp_format": "yyyy-MM-dd HH:mm:ss",
                         "target_column_name": field_name
+                    }
+                })
+            elif data_type.lower() == "timestamp" and field_name == "file_timestamp_bucket":
+                columns.append({
+                    "standardize_function": "standardize_date",
+                    "additional_parameters": {
+                        "date_format": "yyyy-MM-dd HH:mm:ss",
+                        "target_column_name": field_name
+                    }
+                })
+            elif data_type.lower() == "date" and field_name == "txn_dt":
+                columns.append({
+                    "standardize_function": "standardize_date",
+                    "source_column_name": field_name,
+                    "additional_parameters": {
+                        "date_format": "yyyy-MM-dd",
+                        "target_column_name": "txn_date"
                     }
                 })
             elif data_type.lower() == "date" and field_name != "file_date":
@@ -431,8 +483,7 @@ def generate_json_standardization(
                 })
             elif field_name in {
                 "owning_subscriber_id", "msisdn", "subscriber_id", "sub_id",
-                "ret_min", "ret_msisdn", "dsp_min", "dealer_min"
-            }:
+                "ret_min", "ret_msisdn", "dsp_min", "dealer_min"}:
                 columns.append({
                     "standardize_function": "standardize_msisdn",
                     "source_column_name": field_name,
@@ -460,6 +511,14 @@ def generate_json_standardization(
                         "target_column_name": field_name
                     }
                 })
+            elif data_type.lower() == "timestamp" and field_name == "file_timestamp_bucket":
+                columns.append({
+                    "standardize_function": "standardize_date",
+                    "additional_parameters": {
+                        "date_format": "yyyy-MM-dd HH:mm:ss",
+                        "target_column_name": field_name
+                    }
+                })
             elif data_type.lower() == "date" and field_name != "file_date":
                 columns.append({
                     "standardize_function": "standardize_date",
@@ -475,6 +534,15 @@ def generate_json_standardization(
                     "additional_parameters": {
                         "date_format": "yyyy-MM-dd",
                         "target_column_name": field_name
+                    }
+                })
+            elif data_type.lower() == "date" and field_name == "txn_dt":
+                columns.append({
+                    "standardize_function": "standardize_date",
+                    "source_column_name": field_name,
+                    "additional_parameters": {
+                        "date_format": "yyyy-MM-dd",
+                        "target_column_name": "txn_date"
                     }
                 })
             elif field_name in {
@@ -494,9 +562,12 @@ def generate_json_standardization(
     pretty_json = json.dumps(columns, indent=4)
     indented_json = "\n".join("           " + line for line in pretty_json.splitlines())
 
+    partition_pretty_json = json.dumps(target_partition_list, indent=4)
+    partition_indented_json = "\n".join("           " + line for line in partition_pretty_json.splitlines())
+
     template = Path(template_path).read_text(encoding="utf-8")
     result = template.replace("<standardization>", indented_json)
-
+    result = result.replace("<target_partition_list>", partition_indented_json)
     final_output = Path(f"{output_path}")
     final_output.write_text(result, encoding="utf-8")
 
@@ -719,7 +790,8 @@ def dbx_main():
         pipe_line=context.p_pipeline, 
         template_path=f"{parent_trash_path}{context.p_pipeline}_config.txt",
         output_path=Path(f"{json_config_p}"),
-        p_header=p_header
+        p_header=p_header,
+        p_partition_column=context.p_partition_column
     )
 
     generate_instructions(

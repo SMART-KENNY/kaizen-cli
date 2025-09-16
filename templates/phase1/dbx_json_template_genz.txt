@@ -48,6 +48,17 @@
 <standardization>,
         "data_quality_configuration": [
             {
+                "rule_name": "compare_row_count",
+                "parameters": {
+                    "expected_value": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
                 "rule_name": "compare_file_size_in_bytes",
                 "parameters": {
                     "actual_size": null,
@@ -86,6 +97,16 @@
             { 
                 "rule_name": "check_column_count", 
                 "parameters": { "expected_count": <column_count> },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_null", 
+                "target_column": "<column>", 
+                "parameters": {},
                 "action": "log",
                 "execution_stage": "transformed",
                 "send_email_notifications": false,

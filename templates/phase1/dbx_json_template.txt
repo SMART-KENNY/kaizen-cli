@@ -23,8 +23,10 @@
         },
         "endpoint_configuration": {
             "table_name": "<work_space>.<data_domain><tier_suffix>.<table_name>",
-            "target_partition_list": [],
-            "data_refresh_column_list": [<data_refresh_column_list>],
+            "target_partition_list": [
+<target_partition_list>
+            ],
+            "data_refresh_column_list": [<data_refresh_column_list>, "file_name"],
             "save_mode": "<save_mode>",
             "partition_overwrite_flag": false
         },

@@ -180,14 +180,14 @@ def generate_sql(
             field_name = str(row.iloc[1])
             data_type = str(row.iloc[2]) if not pd.isna(row.iloc[2]) else ""
 
-            if data_type == "dbx_process_dttm":
+            if field_name == "dbx_process_dttm":
                 line = f"now() {field_name}"
             elif data_type.lower() in {"timestamp", "date"} or field_name in {"file_name", "file_id", "owning_subscriber_id", "msisdn","subscriber_id", "sub_id","ret_min","ret_msisdn","dsp_min","dealer_min"}:
                 line = f"{field_name}"
             else:
                 line = f"cast({field_name} as {data_type}) {field_name}"
         
-            lines.append(line)
+            lines.append(line.lower())
 
     else:
         for _, row in df.iterrows():
@@ -202,7 +202,7 @@ def generate_sql(
             else:
                 line = f"cast({iterator} as {data_type}) {field_name}"
             
-            lines.append(line)
+            lines.append(line.lower())
 
     sql_lines = []
     sql_lines.append("select")
@@ -306,7 +306,7 @@ def generate_onboarding_ddl(
         comment = comment.replace("'", "''")  # Escape single quotes
 
         line = f"{field_name} {data_type} COMMENT '{comment}'"
-        lines.append(line)
+        lines.append(line.lower())
 
 
     last_valid_index = max(i for i, l in enumerate(lines) if "file_id" not in l)
@@ -356,8 +356,8 @@ def generate_json_config(
             continue
 
         columns.append({
-            "column_name": field_name,
-            "data_type": data_type
+            "column_name": field_name.lower(),
+            "data_type": data_type.lower()
         })
 
 

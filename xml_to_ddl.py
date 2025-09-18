@@ -35,7 +35,7 @@ def extract_columns(xml_file):
         else:
             final_type = talend_type
 
-        results.append(f"{col_name.lower()},{final_type},{pattern}")
+        results.append(f"{col_name.lower()}|{final_type}|{pattern}")
 
     return results
 

@@ -23,7 +23,7 @@ def extract_columns(xml_file):
 
         # Special conversion for bigdecimal → double
         if talend_type == "bigdecimal":
-            talend_type = "double"
+            talend_type = "decimal"
 
         # Decide how to format type
         if talend_type in ("string", "varchar"):

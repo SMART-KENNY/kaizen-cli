@@ -1,7 +1,7 @@
 resources:
   jobs:
-    <work_space>_<pipeline>_<frequency>_job:
-      name: <work_space>_<pipeline>_<frequency>_job
+    <work_space>_<pipeline>_job:
+      name: <work_space>_<pipeline>_job
       webhook_notifications: ${var.webhook_notifications_config}
       tags:
         owner: Wireless Data Engineering
@@ -31,9 +31,25 @@ resources:
             op: GREATER_THAN
             value: 3600
       # Uncomment the following lines if you want to set a maximum number of concurrent runs
-      # max_concurrent_runs: 2
+      max_concurrent_runs: 1
       tasks:
+        - task_key: optima_file_movement_task
+          job_cluster_key: cluster
+          notebook_task:
+            notebook_path: ../../optima_file_movement.ipynb
+            base_parameters:
+              source_file_dir: "s3://${var.wde_bucket_name}<s3_source_file_dir>"
+              source_destination_file_dir: "s3://${var.wde_bucket_name}/optima/<pipeline>/raw/"
+              source_file_mask: "<s3_source_file_mask>"
+              manifest_destination_file_dir: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/raw/"
+              manifest_file_mask: "<s3_manifest_file_mask>"
+              pipeline: "<pipeline>"
+          libraries:
+            - whl: ${var.common_package_wheel_path}
+	    
         - task_key: landing_to_in_process_file_movement_task
+          depends_on:
+            - task_key: optima_file_movement_task
           job_cluster_key: cluster
           notebook_task:
             notebook_path: ../../common_file_movement.ipynb
@@ -50,14 +66,14 @@ resources:
               task_notebook_path: ${var.job_reference.task_notebook_path}
               execution_env: ${var.job_reference.execution_env}
               execution_type: "bau"
-              data_source_base_path: "s3://${var.wde_bucket_name}/<p_data_source_base_path>/"
-              data_destination_base_path: "s3://${var.wde_bucket_name}/<p_data_destination_base_path>/in_process/"
-              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/<manifest_source_base_path>/"
-              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/<manifest_destination_base_path>/in_process/"
-              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/<reprocessing_data_source_base_path>/archive/failed/"
-              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/<reprocessing_data_destination_base_path>/archive/reprocessing/"
-              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/<reprocessing_manifest_source_base_path>/archive/failed/"
-              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/<reprocessing_manifest_destination_base_path>/reprocessing/"
+              data_source_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/raw"
+              data_destination_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/in_process"
+              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/raw"
+              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/in_process"
+              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/archive/failed/"
+              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/reprocessing/"
+              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/archive/failed/"
+              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/reprocessing/"
               aws_profile: ${var.aws_profile_name}
               landing_bucket_name: ${var.wde_bucket_name}
               monitoring_bucket_name: ${var.wde_monitoring_bucket_name}
@@ -86,7 +102,7 @@ resources:
               execution_env: ${var.job_reference.execution_env}
               execution_type: "bau"
               reprocess_partition: ""
-              s3_dbx_job_trigger_event_path: "s3://${var.wde_monitoring_bucket_name}/<manifest_source_base_path>/"
+              s3_dbx_job_trigger_event_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/raw"
               config_file_path: "./<data_domain>/etc/<pipeline>_config.json"
               aws_profile: ${var.aws_profile_name}
               landing_bucket_name: ${var.wde_bucket_name}
@@ -115,14 +131,14 @@ resources:
               execution_env: ${var.job_reference.execution_env}
               execution_type: "bau"
               upstream_task_name: "<pipeline>_<tier>_task"
-              data_source_base_path: "s3://${var.wde_bucket_name}/<p_data_source_base_path>/"
-              data_destination_base_path: "s3://${var.wde_bucket_name}/<p_data_destination_base_path>/in_process/"
-              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/<manifest_source_base_path>/"
-              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/<manifest_destination_base_path>/in_process/"
-              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/<reprocessing_data_source_base_path>/archive/failed/"
-              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/<reprocessing_data_destination_base_path>/archive/reprocessing/"
-              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/<reprocessing_manifest_source_base_path>/archive/failed/"
-              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/<reprocessing_manifest_destination_base_path>/reprocessing/"
+              data_source_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/in_process/"
+              data_destination_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/archive/"
+              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/in_process/"
+              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/archive/"
+              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/reprocessing/"
+              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/optima/<pipeline>/archive/"
+              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/reprocessing/"
+              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/optima/<pipeline>/reprocessing/archive/"
               aws_profile: ${var.aws_profile_name}
               landing_bucket_name: ${var.wde_bucket_name}
               monitoring_bucket_name: ${var.wde_monitoring_bucket_name}

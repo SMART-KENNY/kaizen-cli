@@ -1,0 +1,179 @@
+resources:
+  jobs:
+    <work_space>_<pipeline>_<frequency>_<p_tier>_job:
+      name: <work_space>_<pipeline>_<frequency>_<p_tier>_job
+      webhook_notifications: ${var.webhook_notifications_config}
+      tags:
+        owner: Wireless Data Engineering
+        layer: <tier>
+        job_type: <frequency>
+
+      permissions:
+        - group_name: "GSG PLDT GDM Databricks Developers WDE ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "GSG SMART GDM Databricks Developers WDE ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "GSG PLDT GDM Databricks Workspace Admins WDE ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "GSG SMART GDM Databricks Workspace Admins WDE ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "GSG PLDT GDM Databricks Operations ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "GSG SMART GDM Databricks Operations ${var.group_postfix}"
+          level: CAN_MANAGE_RUN
+        - group_name: "users"
+          level: CAN_MANAGE_RUN
+
+      timeout_seconds: 7200
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 3600
+      # Uncomment the following lines if you want to set a maximum number of concurrent runs
+      # max_concurrent_runs: 2
+      tasks:
+        - task_key: landing_to_in_process_file_movement_task
+          job_cluster_key: cluster
+          notebook_task:
+            notebook_path: ../../common_file_movement.ipynb
+            base_parameters:
+              workspace_id: ${var.job_reference.workspace_id}
+              workspace_url: ${var.job_reference.workspace_url}
+              job_id: ${var.job_reference.job_id}
+              job_name: ${var.job_reference.job_name}
+              job_trigger_type: ${var.job_reference.job_trigger_type}
+              job_run_id: ${var.job_reference.job_run_id}
+              job_start_time: ${var.job_reference.job_start_time}
+              task_run_id: ${var.job_reference.task_run_id}
+              task_name: ${var.job_reference.task_name}
+              task_notebook_path: ${var.job_reference.task_notebook_path}
+              execution_env: ${var.job_reference.execution_env}
+              execution_type: "bau"
+              data_source_base_path: "s3://${var.wde_bucket_name}/<pipeline>/raw"
+              data_destination_base_path: "s3://${var.wde_bucket_name}/<pipeline>/in_process"
+              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/raw"
+              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/in_process"
+              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/<pipeline>/archive/failed/"
+              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/<pipeline>/reprocessing/"
+              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/archive/failed/"
+              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/reprocessing/"
+              aws_profile: ${var.aws_profile_name}
+              landing_bucket_name: ${var.wde_bucket_name}
+              monitoring_bucket_name: ${var.wde_monitoring_bucket_name}
+          # libraries:
+          #   - whl: ${var.common_package_wheel_path}
+
+        - task_key: <pipeline>_<frequency>_<tier>_task
+          depends_on:
+            - task_key: landing_to_in_process_file_movement_task
+          job_cluster_key: cluster
+          notebook_task:
+            notebook_path: ../../common_s3_loader_v2.ipynb
+            base_parameters:
+              workspace_id: ${var.job_reference.workspace_id}
+              workspace_url: ${var.job_reference.workspace_url}
+              job_id: ${var.job_reference.job_id}
+              job_name: ${var.job_reference.job_name}
+              job_trigger_type: ${var.job_reference.job_trigger_type}
+              job_run_id: ${var.job_reference.job_run_id}
+              job_start_time: ${var.job_reference.job_start_time}
+              task_run_id: ${var.job_reference.task_run_id}
+              task_name: ${var.job_reference.task_name}
+              task_type: "<p_tier>"
+              workspace_name: ${var.workspace_name}
+              task_notebook_path: ${var.job_reference.task_notebook_path}
+              execution_env: ${var.job_reference.execution_env}
+              execution_type: "bau"
+              reprocess_partition: ""
+              s3_dbx_job_trigger_event_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/raw/"
+              config_file_path: "./<data_domain>/etc/<pipeline>_config.json"
+              aws_profile: ${var.aws_profile_name}
+              landing_bucket_name: ${var.wde_bucket_name}
+              monitoring_bucket_name: ${var.wde_monitoring_bucket_name}
+              upstream_task_name: "landing_to_in_process_file_movement_task"
+          # libraries:
+          #   - whl: ${var.common_package_wheel_path}
+
+        - task_key: in_process_to_archive_file_movement_task
+          depends_on:
+            - task_key: <pipeline>_<frequency>_<tier>_task
+          job_cluster_key: cluster
+          notebook_task:
+            notebook_path: ../../common_file_movement.ipynb
+            base_parameters:
+              workspace_id: ${var.job_reference.workspace_id}
+              workspace_url: ${var.job_reference.workspace_url}
+              job_id: ${var.job_reference.job_id}
+              job_name: ${var.job_reference.job_name}
+              job_trigger_type: ${var.job_reference.job_trigger_type}
+              job_run_id: ${var.job_reference.job_run_id}
+              job_start_time: ${var.job_reference.job_start_time}
+              task_run_id: ${var.job_reference.task_run_id}
+              task_name: ${var.job_reference.task_name}
+              task_notebook_path: ${var.job_reference.task_notebook_path}
+              execution_env: ${var.job_reference.execution_env}
+              execution_type: "bau"
+              upstream_task_name: "<pipeline>_<frequency>_<tier>_task"
+              data_source_base_path: "s3://${var.wde_bucket_name}/<pipeline>/in_process/"
+              data_destination_base_path: "s3://${var.wde_bucket_name}/<pipeline>/archive/"
+              manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/in_process/"
+              manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/archive/"
+              reprocessing_data_source_base_path: "s3://${var.wde_bucket_name}/<pipeline>/reprocessing/"
+              reprocessing_data_destination_base_path: "s3://${var.wde_bucket_name}/<pipeline>/archive/"
+              reprocessing_manifest_source_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/reprocessing/"
+              reprocessing_manifest_destination_base_path: "s3://${var.wde_monitoring_bucket_name}/manifests/source_manifest/<pipeline>/archive/"
+              aws_profile: ${var.aws_profile_name}
+              landing_bucket_name: ${var.wde_bucket_name}
+              monitoring_bucket_name: ${var.wde_monitoring_bucket_name}
+          # libraries:
+          #   - whl: ${var.common_package_wheel_path}
+
+        - task_key: trigger_downstream_task
+          depends_on:
+            - task_key: <pipeline>_<frequency>_<tier>_task
+          job_cluster_key: cluster
+          notebook_task:
+            notebook_path: ../../common_pipeline_trigger.ipynb
+            base_parameters:
+              workspace_id: ${var.job_reference.workspace_id}
+              workspace_url: ${var.job_reference.workspace_url}
+              job_id: ${var.job_reference.job_id}
+              job_name: ${var.job_reference.job_name}
+              job_trigger_type: ${var.job_reference.job_trigger_type}
+              job_run_id: ${var.job_reference.job_run_id}
+              job_start_time: ${var.job_reference.job_start_time}
+              task_run_id: ${var.job_reference.task_run_id}
+              task_name: ${var.job_reference.task_name}
+              task_notebook_path: ${var.job_reference.task_notebook_path}
+              execution_env: ${var.job_reference.execution_env}
+              upstream_task_name: "<pipeline>_<frequency>_<tier>_task"
+              config_file_path: "./<data_domain>/etc/<pipeline>_config.json"
+              is_active: "false"
+              aws_profile: ${var.aws_profile_name}
+              landing_bucket_name: ${var.wde_bucket_name}
+              monitoring_bucket_name: ${var.wde_monitoring_bucket_name}
+              task_type: "trigger_downstream"
+              workspace_name: ${var.workspace_name}
+          # libraries:
+          #   - whl: ${var.common_package_wheel_path}
+
+      job_clusters:
+        - job_cluster_key: cluster
+          new_cluster:
+            spark_version: ${var.spark_version}
+            node_type_id: <node_type_id>
+            aws_attributes:
+              first_on_demand: <first_on_demand>
+              zone_id: auto
+            spark_conf: ${var.default_spark_conf}
+            spark_env_vars: ${var.default_spark_env_vars}
+            num_workers: <num_workers>
+            autoscale:
+              min_workers: <min_workers>
+              max_workers: <max_workers>
+            cluster_log_conf:
+              dbfs:
+                destination: dbfs:/cluster-logs/<pipeline>_<frequency>_<tier>_job
+            custom_tags:
+              "Environment": ${bundle.target}

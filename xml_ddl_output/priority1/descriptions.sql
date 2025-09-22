@@ -1,0 +1,10 @@
+originalDbColumnName,talendType,pattern
+description_code|double(10,0)|
+language_code|double(6,0)|
+description_group|double(6,0)|
+description_text|string|
+short_description_text|string|
+config_tag_id|string|
+tenant_id|double(10,0)|
+sid_source|string|
+process_dt|date|"dd-MM-yyyy"

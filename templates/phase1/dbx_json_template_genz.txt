@@ -1,0 +1,120 @@
+{
+    "application_name": "<application_name>",
+    "logger_configuration": {
+      "log_level": "DEBUG"
+    },
+    "task_configuration": {
+        "datasource_configuration": {
+            "s3_data_bucket_key": "landing_bucket_name",
+            "s3_in_process_data_prefix": "<pipeline>/in_process/",
+            "s3_reprocessing_data_prefix": "<pipeline>/reprocessing/",
+            "s3_manifest_bucket_key": "monitoring_bucket_name",
+            "s3_in_process_manifest_prefix": "manifests/source_manifest/<pipeline>/in_process/", 
+            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/<pipeline>/reprocessing/",
+            "sql_file_path": "./<data_domain>/sql/<table_name>.sql",
+            "file_format": "<soure_file_format>",
+            "delimiter": "<delimeter>",
+            "header_flag": <header_flag>,
+            "additional_spark_read_options": {"skipRows": 6, "multiLine": true, "quote": "\"", "escape": "\""},
+            "read_mode": "FAILFAST",
+            "file_timestamp_partition_flag": true,
+            "source_partition_list": [
+
+            ]
+        },
+        "endpoint_configuration": {
+            "table_name": "<work_space>.<data_domain><tier_suffix>.<table_name>",
+            "target_partition_list": [
+                {
+                    "partition_name": "txn_dt",
+                    "data_type": "date",
+                    "format": "%Y-%m-%d",
+                    "metadata_table_column_ref": "transaction_timestamp",
+                    "order": 1
+                },
+                {
+                    "partition_name": "file_date",
+                    "data_type": "date",
+                    "format": "%Y-%m-%d",
+                    "metadata_table_column_ref": "file_timestamp",
+                    "order": 2
+                }
+            ],
+            "data_refresh_column_list": ["txn_dt", "file_date"],
+            "save_mode": "<save_mode>",
+            "partition_overwrite_flag": false
+        },
+        "data_standardization_configuration": 
+<standardization>,
+        "data_quality_configuration": [
+            {
+                "rule_name": "compare_row_count",
+                "parameters": {
+                    "expected_value": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "compare_file_size_in_bytes",
+                "parameters": {
+                    "actual_size": null,
+                    "expected_size": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "reconcile_file_set",
+                "parameters": {
+                    "file_name_column": "file_name",
+                    "manifest_file_set": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "check_schema_consistency",
+                "parameters": {
+                    "expected_schema": 
+<schema>
+                },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_column_count", 
+                "parameters": { "expected_count": <column_count> },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_null", 
+                "target_column": "<column>", 
+                "parameters": {},
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            }
+        ]
+    },
+    "utility_configuration": {
+    }
+  }

@@ -1,0 +1,183 @@
+{
+    "application_name": "OPTIMA - opt_dly_descriptions",
+    "logger_configuration": {
+      "log_level": "DEBUG"
+    },
+    "task_configuration": {
+        "datasource_configuration": {
+            "s3_data_bucket_key": "landing_bucket_name",
+            "s3_in_process_data_prefix": "opt_dly_descriptions/in_process/",
+            "s3_reprocessing_data_prefix": "opt_dly_descriptions/reprocessing/",
+            "s3_manifest_bucket_key": "monitoring_bucket_name",
+            "s3_in_process_manifest_prefix": "manifests/source_manifest/opt_dly_descriptions/in_process/", 
+            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/opt_dly_descriptions/reprocessing/",
+            "sql_file_path": "./cu/sql/opt_dly_descriptions.sql",
+            "file_format": "parquet",
+            "delimiter": "",
+            "header_flag": true,
+            "read_mode": "FAILFAST",
+            "file_timestamp_partition_flag": true,
+            "source_partition_list": [
+
+            ]
+        },
+        "endpoint_configuration": {
+            "table_name": "wde.cu_b.opt_dly_descriptions",
+            "target_partition_list": [
+           [
+               {
+                   "partition_name": "txn_date",
+                   "data_type": "date",
+                   "format": "%Y-%m-%d",
+                   "metadata_table_column_ref": "transaction_timestamp",
+                   "order": 1
+               },
+               {
+                   "partition_name": "file_date",
+                   "data_type": "date",
+                   "format": "%Y-%m-%d",
+                   "metadata_table_column_ref": "file_date",
+                   "order": 2
+               }
+           ]
+            ],
+            "data_refresh_column_list": ["txn_date", "file_date", "file_name"],
+            "save_mode": "append",
+            "partition_overwrite_flag": false
+        },
+        "data_standardization_configuration": 
+           [
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "process_dt",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "process_dt"
+                   }
+               },
+               {
+                   "standardize_function": "standardize_date",
+                   "source_column_name": "load_date",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "load_date"
+                   }
+               }
+           ],
+        "data_quality_configuration": [
+            {
+                "rule_name": "compare_row_count",
+                "parameters": {
+                    "expected_value": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "compare_file_size_in_bytes",
+                "parameters": {
+                    "actual_size": null,
+                    "expected_size": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "reconcile_file_set",
+                "parameters": {
+                    "file_name_column": "file_name",
+                    "manifest_file_set": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "check_schema_consistency",
+                "parameters": {
+                    "expected_schema": 
+                [
+                    {
+                        "column_name": "description_code",
+                        "data_type": "double(10,0)"
+                    },
+                    {
+                        "column_name": "language_code",
+                        "data_type": "double(6,0)"
+                    },
+                    {
+                        "column_name": "description_group",
+                        "data_type": "double(6,0)"
+                    },
+                    {
+                        "column_name": "description_text",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "short_description_text",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "config_tag_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "tenant_id",
+                        "data_type": "double(10,0)"
+                    },
+                    {
+                        "column_name": "sid_source",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "process_dt",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "load_date",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "dbx_process_dttm",
+                        "data_type": "timestamp"
+                    }
+                ]
+                },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_column_count", 
+                "parameters": { "expected_count": 11 },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_null", 
+                "target_column": "<column>", 
+                "parameters": {},
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            }
+        ]
+    },
+    "utility_configuration": {
+    }
+  }

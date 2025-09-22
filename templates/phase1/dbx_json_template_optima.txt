@@ -6,11 +6,11 @@
     "task_configuration": {
         "datasource_configuration": {
             "s3_data_bucket_key": "landing_bucket_name",
-            "s3_in_process_data_prefix": "<p_data_source_base_path>/in_process/",
-            "s3_reprocessing_data_prefix": "<reprocessing_data_source_base_path>/reprocessing/",
+            "s3_in_process_data_prefix": "optima/<pipeline>/in_process/",
+            "s3_reprocessing_data_prefix": "optima/<pipeline>/reprocessing/",
             "s3_manifest_bucket_key": "monitoring_bucket_name",
-            "s3_in_process_manifest_prefix": "<manifest_source_base_path>/in_process/", 
-            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/<reprocessing_data_source_base_path>/reprocessing/",
+            "s3_in_process_manifest_prefix": "manifests/source_manifest/optima/<pipeline>/in_process/", 
+            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/optima/<pipeline>/reprocessing/",
             "sql_file_path": "./<data_domain>/sql/<table_name>.sql",
             "file_format": "<soure_file_format>",
             "delimiter": "<delimeter>",
@@ -26,7 +26,7 @@
             "target_partition_list":
 <target_partition_list>
             ,
-            "data_refresh_column_list": [<data_refresh_column_list>, "file_name"],
+            "data_refresh_column_list": [<data_refresh_column_list>],
             "save_mode": "<save_mode>",
             "partition_overwrite_flag": false
         },

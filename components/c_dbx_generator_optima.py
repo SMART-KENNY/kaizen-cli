@@ -26,20 +26,16 @@ class ContextParam:
     p_delimeter: Optional[str] = ""
     p_save_mode: Optional[str] = None
     p_source_directory: Optional[str] = None
-    p_file_mask: Optional[str] = None
+    on_prem_p_file_mask: Optional[str] = None
     p_file_size: Optional[str] = None
     p_application_name: Optional[str] = None
     p_task_key_name: Optional[str] = None
     p_partition_column: Optional[str] = None
     p_retention_key: Optional[str] = None
-    data_source_base_path: Optional[str] = None
-    data_destination_base_path: Optional[str] = None
-    manifest_source_base_path: Optional[str] = None
-    manifest_destination_base_path: Optional[str] = None
-    reprocessing_data_source_base_path: Optional[str] = None
-    reprocessing_data_destination_base_path: Optional[str] = None
-    reprocessing_manifest_source_base_path: Optional[str] = None
-    reprocessing_manifest_destination_base_path: Optional[str] = None
+    s3_source_file_dir: Optional[str] = None
+    s3_source_file_mask: Optional[str] = None
+    s3_manifest_file_mask: Optional[str] = None
+
 
     p_project_name: Optional[str] = None
     p_jobs_to_deploy: Optional[str] = None
@@ -192,11 +188,13 @@ def generate_sql(
             data_type = str(row.iloc[2]) if not pd.isna(row.iloc[2]) else ""
 
             if field_name == "dbx_process_dttm":
-                line = f"now() {field_name}"
-            elif field_name == "process_dt":
-                line = f"now() process_date"
-            elif field_name == "load_date":
-                line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+                line = f"now() as {field_name}"
+            # elif field_name == "process_dt":
+            #     line = f"now() process_date"
+            # elif field_name == "load_date":
+            #     line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+            elif field_name == "sid_source":
+                line = f"'SID' as {field_name}"
             elif data_type.lower() in {"timestamp", "date"} or field_name in {"file_name", "file_id", "owning_subscriber_id", "msisdn","subscriber_id", "sub_id","ret_min","ret_msisdn","dsp_min","dealer_min"}:
                 line = f"{field_name}"
             else:
@@ -211,11 +209,13 @@ def generate_sql(
             data_type = str(row.iloc[2]) if not pd.isna(row.iloc[2]) else ""
 
             if field_name == "dbx_process_dttm":
-                line = f"now() {field_name}"
-            elif field_name == "process_dt":
-                line = f"now() process_date"
-            elif field_name == "load_date":
-                line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+                line = f"now() as {field_name}"
+            # elif field_name == "process_dt":
+            #     line = f"now() process_date"
+            # elif field_name == "load_date":
+            #     line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+            elif field_name == "sid_source":
+                line = f"'SID' as {field_name}"
             elif data_type.lower() in {"timestamp", "date"} or field_name in {"file_name", "file_id", "owning_subscriber_id", "msisdn","subscriber_id", "sub_id","ret_min","ret_msisdn","dsp_min","dealer_min"}:
                 line = f"{field_name}"
             else:
@@ -374,16 +374,16 @@ def generate_json_config(
         if not field_name or not data_type:
             continue
         
-        if field_name == "process_dt":
-            columns.append({
-                "column_name": "process_date",
-                "data_type": data_type.lower()
-            })
-        else:
-            columns.append({
-                "column_name": field_name.lower(),
-                "data_type": data_type.lower()
-            })
+        # if field_name == "process_dt":
+        #     columns.append({
+        #         "column_name": "process_date",
+        #         "data_type": data_type.lower()
+        #     })
+        # else:
+        columns.append({
+            "column_name": field_name.lower(),
+            "data_type": data_type.lower()
+        })
 
 
     pretty_json = json.dumps(columns, indent=4)
@@ -440,14 +440,14 @@ def generate_json_standardization(
                     "metadata_table_column_ref": "file_date",
                     "order": 2
                 })
-        elif p == "load_date":
-            target_partition_list.append({
-                    "partition_name": "load_date",
-                    "data_type": "date",
-                    "format": "%Y-%m-%d",
-                    "metadata_table_column_ref": "transaction_timestamp",
-                    "order": 2
-                })
+        # elif p == "load_date":
+        #     target_partition_list.append({
+        #             "partition_name": "load_date",
+        #             "data_type": "date",
+        #             "format": "%Y-%m-%d",
+        #             "metadata_table_column_ref": "transaction_timestamp",
+        #             "order": 2
+        #         })
         elif p == "file_timestamp_bucket":
             target_partition_list.append({
                     "partition_name": "file_timestamp_bucket",
@@ -497,23 +497,23 @@ def generate_json_standardization(
                         "target_column_name": "txn_date"
                     }
                 })
-            elif data_type.lower() == "date" and field_name == "load_date":
-                columns.append({
-                    "standardize_function": "standardize_date",
-                    "additional_parameters": {
-                        "date_format": "yyyy-MM-dd",
-                        "target_column_name": "load_date"
-                    }
-                })
-            elif data_type.lower() == "date" and field_name == "process_dt":
-                columns.append({
-                    "standardize_function": "standardize_date",
-                    "source_column_name": field_name,
-                    "additional_parameters": {
-                        "date_format": "yyyy-MM-dd",
-                        "target_column_name": "process_date"
-                    }
-                })
+            # elif data_type.lower() == "date" and field_name == "load_date":
+            #     columns.append({
+            #         "standardize_function": "standardize_date",
+            #         "additional_parameters": {
+            #             "date_format": "yyyy-MM-dd",
+            #             "target_column_name": "load_date"
+            #         }
+            #     })
+            # elif data_type.lower() == "date" and field_name == "process_dt":
+            #     columns.append({
+            #         "standardize_function": "standardize_date",
+            #         "source_column_name": field_name,
+            #         "additional_parameters": {
+            #             "date_format": "yyyy-MM-dd",
+            #             "target_column_name": "process_date"
+            #         }
+            #     })
             elif data_type.lower() == "date" and field_name != "file_date":
                 columns.append({
                     "standardize_function": "standardize_date",
@@ -595,23 +595,23 @@ def generate_json_standardization(
                         "target_column_name": "txn_date"
                     }
                 })
-            elif data_type.lower() == "date" and field_name == "load_date":
-                columns.append({
-                    "standardize_function": "standardize_date",
-                    "additional_parameters": {
-                        "date_format": "yyyy-MM-dd",
-                        "target_column_name": "load_date"
-                    }
-                })
-            elif data_type.lower() == "date" and field_name == "process_dt":
-                columns.append({
-                    "standardize_function": "standardize_date",
-                    "source_column_name": field_name,
-                    "additional_parameters": {
-                        "date_format": "yyyy-MM-dd",
-                        "target_column_name": "process_date"
-                    }
-                })
+            # elif data_type.lower() == "date" and field_name == "load_date":
+            #     columns.append({
+            #         "standardize_function": "standardize_date",
+            #         "additional_parameters": {
+            #             "date_format": "yyyy-MM-dd",
+            #             "target_column_name": "load_date"
+            #         }
+            #     })
+            # elif data_type.lower() == "date" and field_name == "process_dt":
+            #     columns.append({
+            #         "standardize_function": "standardize_date",
+            #         "source_column_name": field_name,
+            #         "additional_parameters": {
+            #             "date_format": "yyyy-MM-dd",
+            #             "target_column_name": "process_date"
+            #         }
+            #     })
             elif field_name in {
                 "owning_subscriber_id", "msisdn", "subscriber_id", "sub_id",
                 "ret_min", "ret_msisdn", "dsp_min", "dealer_min"
@@ -677,7 +677,7 @@ def remove_trash(trash_path: Path) -> None:
 
 
 def read_excel_file(file_path: str = 'dbx_context_param_optima.xlsx', sheet: str = 'newcontext') -> ContextParam:
-    df = pd.read_excel(file_path, sheet_name=sheet, usecols="C", skiprows=1, nrows=26)
+    df = pd.read_excel(file_path, sheet_name=sheet, usecols="C", skiprows=1, nrows=23)
 
     if df.empty:
         raise ValueError("Excel range is empty.")
@@ -731,7 +731,7 @@ def dbx_main():
         "<p_tier>" : context.p_tier,
         "<tier>": context.p_tier,
         "<data_domain>": context.p_data_domain,
-        "<file_mask>": context.p_file_mask,
+        "<file_mask>": context.on_prem_p_file_mask,
         "<tier_suffix>": context.tier_suffix,
         "<table_name>": context.p_table_name,
         "<delimeter>": context.p_delimeter,
@@ -753,15 +753,9 @@ def dbx_main():
         "<alter_tags_file>": f"alter_tags-{context.p_pipeline}.sql",
         "<json_file>": f"{context.p_pipeline}_config.json",
         "<sql_file>": f"{context.p_pipeline}.sql",
-        "<dev_gdm_config>": f"dev_gdm_config-{context.p_pipeline}.json",
-        "<p_data_source_base_path>": context.data_source_base_path,
-        "<p_data_destination_base_path>": context.data_destination_base_path,
-        "<manifest_source_base_path>": context.manifest_source_base_path,
-        "<manifest_destination_base_path>": context.manifest_destination_base_path,
-        "<reprocessing_data_source_base_path>": context.reprocessing_data_source_base_path,
-        "<reprocessing_data_destination_base_path>": context.reprocessing_data_destination_base_path,
-        "<reprocessing_manifest_source_base_path>": context.reprocessing_manifest_source_base_path,
-        "<reprocessing_manifest_destination_base_path>": context.reprocessing_manifest_destination_base_path
+        "<s3_source_file_dir>": context.s3_source_file_dir,
+        "<s3_source_file_mask>": context.s3_source_file_mask,
+        "<s3_manifest_file_mask>": context.s3_manifest_file_mask            
 
     }
 

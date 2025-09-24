@@ -1,6 +1,6 @@
 from components.c_data_tech_cli import data_tech_cli
 from components.c_user_option import ai_options
-from components.c_dbx_generator import dbx_main
+from components.c_dbx_generator_optima import dbx_main
 from create_mop import create_mop
 from components.c_create_sharepoint import open_link_safe
 from components.c_execution_procedure import open_file_maximized
@@ -14,7 +14,7 @@ BASE_PATH = os.getenv('BASE_PATH')
 
 if user_choice == "Run databricks generator!":
     runner = dbx_main()
-    open_file_maximized(rf"{BASE_PATH}output\instructions.txt")
+    # open_file_maximized(rf"{BASE_PATH}output\instructions.txt")
 elif user_choice == "Ask / prompt AI":
     print("Running prompt AI")
 elif user_choice == "Run MCP":

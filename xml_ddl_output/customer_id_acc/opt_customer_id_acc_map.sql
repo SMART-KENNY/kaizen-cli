@@ -1,0 +1,10 @@
+originalDbColumnName,talendType,pattern
+external_id|string|
+account_no|decimal(10,0)|
+external_id_type|decimal(6,0)|
+is_current|decimal(1,0)|
+active_date|date|"dd-MM-yyyy"
+inactive_date|date|"dd-MM-yyyy"
+tenant_id|decimal(10,0)|
+sid_source|string|
+process_dt|date|"dd-MM-yyyy"

@@ -1,0 +1,32 @@
+originalDbColumnName,talendType,pattern
+product_id|decimal(19,0)|
+archived|string|
+created_by|decimal(19,0)|
+date_created|date|"yyyy-MM-dd HH:mm:ss"
+date_updated|date|"yyyy-MM-dd HH:mm:ss"
+updated_by|decimal(19,0)|
+can_sell_without_options|string|
+display_template|string|
+admin_addition_status|string|
+has_child_add_ons|string|
+product_type|string|
+catalog_disc|decimal(19,0)|
+sndbx_catalog_flag|decimal(19,0)|
+sndbx_orig_item_id|decimal(19,0)|
+sndbx_orig_record_id|decimal(19,0)|
+sndbx_id|decimal(19,0)|
+sndbx_archived_flag|string|
+sndbx_deleted_flag|string|
+sndbx_tmplt_record_id|decimal(19,0)|
+sndbx_tier|decimal(19,0)|
+upgrade_family_type|string|
+upgradeable|string|
+is_featured_product|string|
+manufacture|string|
+model|string|
+override_generated_url|string|
+url|string|
+url_key|string|
+default_category_id|decimal(19,0)|
+default_sku_id|decimal(19,0)|
+theme_file_id|decimal(19,0)|

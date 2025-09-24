@@ -1,0 +1,17 @@
+originalDbColumnName,talendType,pattern
+workorder_item_id|decimal(19,0)|
+address_action_id|string|
+comments|string|
+site_disc|decimal(19,0)|
+fulfillment_partner_id|decimal(10,0)|
+installation_time|string|
+owning_account_id|string|
+owning_cfs_id|string|
+work_fulfillment_options|string|
+workorder_item_external_id|string|
+work_specification_external_id|string|
+work_specification_id|decimal(19,0)|
+order_id|decimal(19,0)|
+workfulfillmentoptionsretrievalerror|string|
+sid_source|string|
+process_dt|date|"dd-MM-yyyy"

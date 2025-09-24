@@ -193,6 +193,8 @@ def generate_sql(
             #     line = f"now() process_date"
             # elif field_name == "load_date":
             #     line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+            elif field_name == "file_date":
+                line = f"to_date(date_format(now(), 'yyyy-mm-dd'), 'yyyy-mm-dd') as {field_name}"
             elif field_name == "sid_source":
                 line = f"'SID' as {field_name}"
             elif data_type.lower() in {"timestamp", "date"} or field_name in {"file_name", "file_id", "owning_subscriber_id", "msisdn","subscriber_id", "sub_id","ret_min","ret_msisdn","dsp_min","dealer_min"}:
@@ -214,6 +216,8 @@ def generate_sql(
             #     line = f"now() process_date"
             # elif field_name == "load_date":
             #     line = f"to_date(date_format(now(), 'yyyy-MM-dd'), 'yyyy-MM-dd') as load_date"
+            elif field_name == "file_date":
+                line = f"to_date(date_format(now(), 'yyyy-mm-dd'), 'yyyy-mm-dd') as {field_name}"
             elif field_name == "sid_source":
                 line = f"'SID' as {field_name}"
             elif data_type.lower() in {"timestamp", "date"} or field_name in {"file_name", "file_id", "owning_subscriber_id", "msisdn","subscriber_id", "sub_id","ret_min","ret_msisdn","dsp_min","dealer_min"}:
@@ -437,7 +441,7 @@ def generate_json_standardization(
                     "partition_name": "file_date",
                     "data_type": "date",
                     "format": "%Y-%m-%d",
-                    "metadata_table_column_ref": "file_date",
+                    "metadata_table_column_ref": "transaction_timestamp",
                     "order": 2
                 })
         # elif p == "load_date":
@@ -771,23 +775,23 @@ def dbx_main():
     )
 
 
-    dev_generate_json_config_data_sync(
-        input_path=Path(rf"{parent_template_path}dev_s3_bucket_config_template.txt"),
-        output_path=Path(rf"{parent_output_path}dev_gdm_config-{context.p_pipeline}.json"),
-        replacements=string_to_replace
-    )
+    # dev_generate_json_config_data_sync(
+    #     input_path=Path(rf"{parent_template_path}dev_s3_bucket_config_template.txt"),
+    #     output_path=Path(rf"{parent_output_path}dev_gdm_config-{context.p_pipeline}.json"),
+    #     replacements=string_to_replace
+    # )
 
-    pet_generate_json_config_data_sync(
-        input_path=Path(rf"{parent_template_path}pet_s3_pet_json_config_template.txt"),
-        output_path=Path(rf"{parent_output_path}pet_gdm_config-{context.p_pipeline}.json"),
-        replacements=string_to_replace
-    )
+    # pet_generate_json_config_data_sync(
+    #     input_path=Path(rf"{parent_template_path}pet_s3_pet_json_config_template.txt"),
+    #     output_path=Path(rf"{parent_output_path}pet_gdm_config-{context.p_pipeline}.json"),
+    #     replacements=string_to_replace
+    # )
 
-    data_sync_runner(
-        input_path=Path(rf"{parent_template_path}data_sync_runner.txt"),
-        output_path=Path(rf"{parent_output_path}job_runner_{context.p_pipeline}.sh"),
-        replacements=string_to_replace
-    )
+    # data_sync_runner(
+    #     input_path=Path(rf"{parent_template_path}data_sync_runner.txt"),
+    #     output_path=Path(rf"{parent_output_path}job_runner_{context.p_pipeline}.sh"),
+    #     replacements=string_to_replace
+    # )
 
     generate_grants(
         input_path=Path(rf"{parent_template_path}grants_dev_pet_prod.txt"),
@@ -846,11 +850,11 @@ def dbx_main():
         p_partition_column=context.p_partition_column
     )
 
-    generate_instructions(
-        input_path=Path(rf"{parent_template_path}instructions.txt"),
-        output_path=Path(rf"{parent_output_path}instructions.txt"),
-        replacements=string_to_replace
-    )
+    # generate_instructions(
+    #     input_path=Path(rf"{parent_template_path}instructions.txt"),
+    #     output_path=Path(rf"{parent_output_path}instructions.txt"),
+    #     replacements=string_to_replace
+    # )
 
 
     remove_trash(trash_path=Path(parent_trash_path))

@@ -46,7 +46,7 @@ resources:
               pipeline: "<pipeline>"
           libraries:
             - whl: ${var.common_package_wheel_path}
-	    
+
         - task_key: landing_to_in_process_file_movement_task
           depends_on:
             - task_key: optima_file_movement_task

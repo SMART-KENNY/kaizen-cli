@@ -15,3 +15,6 @@ order_id|decimal(19,0)|
 workfulfillmentoptionsretrievalerror|string|
 sid_source|string|
 process_dt|date|"dd-MM-yyyy"
+
+
+s3://pldt-smart-nonprod-120569600034-ap-southeast-1-gdm-wde-landing/optima/raw/databases/full/optima_op_digital_db_prd_a/POSTGRES/OPT_WORKORDER_ITEM/

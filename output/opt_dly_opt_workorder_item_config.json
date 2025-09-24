@@ -1,0 +1,188 @@
+{
+    "application_name": "OPTIMA -opt_dly_opt_workorder_item",
+    "logger_configuration": {
+      "log_level": "DEBUG"
+    },
+    "task_configuration": {
+        "datasource_configuration": {
+            "s3_data_bucket_key": "landing_bucket_name",
+            "s3_in_process_data_prefix": "optima/opt_dly_opt_workorder_item/in_process/",
+            "s3_reprocessing_data_prefix": "optima/opt_dly_opt_workorder_item/reprocessing/",
+            "s3_manifest_bucket_key": "monitoring_bucket_name",
+            "s3_in_process_manifest_prefix": "manifests/source_manifest/optima/opt_dly_opt_workorder_item/in_process/", 
+            "s3_reprocessing_manifest_prefix": "manifests/source_manifest/optima/opt_dly_opt_workorder_item/reprocessing/",
+            "sql_file_path": "./cu/sql/opt_dly_opt_workorder_item.sql",
+            "file_format": "parquet",
+            "delimiter": "",
+            "header_flag": true,
+            "read_mode": "FAILFAST",
+            "file_timestamp_partition_flag": true,
+            "source_partition_list": [
+
+            ]
+        },
+        "endpoint_configuration": {
+            "table_name": "wde.cu_b.opt_dly_opt_workorder_item",
+            "target_partition_list":
+           [
+               {
+                   "partition_name": "file_date",
+                   "data_type": "date",
+                   "format": "%Y-%m-%d",
+                   "metadata_table_column_ref": "transaction_timestamp",
+                   "order": 2
+               }
+           ]
+            ,
+            "data_refresh_column_list": ["file_date"],
+            "save_mode": "append",
+            "partition_overwrite_flag": false
+        },
+        "data_standardization_configuration": 
+           [
+               {
+                   "standardize_function": "standardize_date",
+                   "additional_parameters": {
+                       "date_format": "yyyy-MM-dd",
+                       "target_column_name": "file_date"
+                   }
+               }
+           ],
+        "data_quality_configuration": [
+            {
+                "rule_name": "compare_file_size_in_bytes",
+                "parameters": {
+                    "actual_size": null,
+                    "expected_size": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "reconcile_file_set",
+                "parameters": {
+                    "file_name_column": "file_name",
+                    "manifest_file_set": null
+                },
+                "action": "log",
+                "execution_stage": "raw",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            {
+                "rule_name": "check_schema_consistency",
+                "parameters": {
+                    "expected_schema": 
+                [
+                    {
+                        "column_name": "workorder_item_id",
+                        "data_type": "decimal(19,0)"
+                    },
+                    {
+                        "column_name": "address_action_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "comments",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "site_disc",
+                        "data_type": "decimal(19,0)"
+                    },
+                    {
+                        "column_name": "fulfillment_partner_id",
+                        "data_type": "decimal(10,0)"
+                    },
+                    {
+                        "column_name": "installation_time",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "owning_account_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "owning_cfs_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "work_fulfillment_options",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "workorder_item_external_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "work_specification_external_id",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "work_specification_id",
+                        "data_type": "decimal(19,0)"
+                    },
+                    {
+                        "column_name": "order_id",
+                        "data_type": "decimal(19,0)"
+                    },
+                    {
+                        "column_name": "workfulfillmentoptionsretrievalerror",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "sid_source",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "file_date",
+                        "data_type": "date"
+                    },
+                    {
+                        "column_name": "dbx_process_dttm",
+                        "data_type": "timestamp"
+                    },
+                    {
+                        "column_name": "file_name",
+                        "data_type": "string"
+                    },
+                    {
+                        "column_name": "file_id",
+                        "data_type": "string"
+                    }
+                ]
+                },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_column_count", 
+                "parameters": { "expected_count": 19 },
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            },
+            { 
+                "rule_name": "check_null", 
+                "target_column": "<column>", 
+                "parameters": {},
+                "action": "log",
+                "execution_stage": "transformed",
+                "send_email_notifications": false,
+                "send_teams_notifications": true,
+                "raise_servicenow_tickets": false
+            }
+        ]
+    },
+    "utility_configuration": {
+    }
+  }

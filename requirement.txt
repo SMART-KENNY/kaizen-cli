@@ -1,5 +1,5 @@
-pip install pyfiglet
-pip install InquirerPy
-pip install pandas
-pip install dotenv
-pip install openpyxl
+pyfiglet
+InquirerPy
+pandas
+dotenv
+openpyxl
